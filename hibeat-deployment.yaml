@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hibeat-deployment
+  labels:
+    app: hibeat-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hibeat-deployment
+  template:
+    metadata:
+      name: hibeat-deployment
+      labels:
+        app: hibeat-deployment
+    spec:
+      containers:
+        - name: hibeat-deployment
+          image: amrithesh/hibeat-image
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: application-config-map
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: application-secret
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: application-secret
+                  key: SPRING_DATASOURCE_PASSWORD
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"

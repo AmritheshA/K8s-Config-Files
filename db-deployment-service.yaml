@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database-deployment
+  labels:
+    app: database-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database-deployment
+  template:
+    metadata:
+      name: database-deployment
+      labels:
+        app: database-deployment
+    spec:
+      containers:
+        - name: database-deployment
+          image: postgres
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: SPRING_DATASOURCE_PASSWORD
+      restartPolicy: Always
+
+
+#Ddatabase Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-service
+spec:
+  selector:
+    app: database-deployment
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: NodePort
+
+
+#Database Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: database-secret
+data:
+  SPRING_DATASOURCE_USERNAME: cG9zdGdyZXM=
+  SPRING_DATASOURCE_PASSWORD: MTIx
